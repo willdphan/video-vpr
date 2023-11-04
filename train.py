@@ -36,14 +36,22 @@ def main(config):
         model = torch.nn.DataParallel(model, device_ids=device_ids)
 
     # get function handles of loss and metrics
+    # getattr built in func
+    # config['loss'] is a string that corresponds to the name of the loss function you want to use in module_loss
     criterion = getattr(module_loss, config['loss'])
+    # config['metrics'] is a list of strings where each string is the name of a metric function you want to use
+    # getattr to fetch each metric function from module_metric by name.
     metrics = [getattr(module_metric, met) for met in config['metrics']]
 
     # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
+    # lambda function that takes a parameter p and returns True if this parameter requires gradient computation (i.e., it's a parameter that the optimizer will update), otherwise False.
+    # model.parameters() a method from the PyTorch nn.Module class, which model is an instance of. It returns an iterator over all the parameters (weights and biases) of the model.
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
+    # uses PyTorch module that contains various optimization algorithms with parameters of the model that the optimizer will update
     optimizer = config.init_obj('optimizer', torch.optim, trainable_params)
+    # use lr_scheduler so that it adjusts the learning rate based on the number of epochs or other criteria
     lr_scheduler = config.init_obj('lr_scheduler', torch.optim.lr_scheduler, optimizer)
-
+    # uses Trainer Class from trainer.py with defined variables
     trainer = Trainer(model, criterion, metrics, optimizer,
                       config=config,
                       device=device,
@@ -55,6 +63,9 @@ def main(config):
 
 
 if __name__ == '__main__':
+    # This line creates a new ArgumentParser object, which will be used to parse command-line arguments. 
+    # description parameter provides a text that will be displayed when the help message of the program is requested.
+    # optional, otherwise defaults to none
     args = argparse.ArgumentParser(description='PyTorch Template')
     args.add_argument('-c', '--config', default=None, type=str,
                       help='config file path (default: None)')
@@ -63,11 +74,18 @@ if __name__ == '__main__':
     args.add_argument('-d', '--device', default=None, type=str,
                       help='indices of GPUs to enable (default: all)')
 
-    # custom cli options to modify configuration from default values given in json file.
+    # custom cli options to modify configuration from default values given in json file
+    # a template for creating a simple object that can hold three pieces of information: flags, type, and target
     CustomArgs = collections.namedtuple('CustomArgs', 'flags type target')
+    # a list of these CustomArgs objects. Each one represents a different setting you can change from the terminal
+    # are optional and will override defaults configs if used. otherwise, uses original config file
     options = [
         CustomArgs(['--lr', '--learning_rate'], type=float, target='optimizer;args;lr'),
         CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size')
     ]
+    # this object reads the default settings from a file (like config.json) and then looks at the arguments you've passed in. If you've used any of the flags defined in options, it will replace the default settings with the values you've provided
+    # NOTE: config var define here
     config = ConfigParser.from_args(args, options)
+    # main function of the script, using the configuration that has been potentially modified by your command-line arguments
     main(config)
+    # call function ex: python train.py --lr 0.01 --bs 32

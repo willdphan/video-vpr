@@ -1,3 +1,5 @@
+# BaseModel provides basic model summary. Actual implementation should be in model.py
+
 import torch.nn as nn
 import numpy as np
 from abc import abstractmethod

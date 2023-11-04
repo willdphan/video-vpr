@@ -1,3 +1,7 @@
+# BaseTrainer handles checkpoint saving/resuming, training process logging, and more. 
+# The actual training loop is implemented in the Trainer class in the trainer.py file. 
+# Specifically, it's in the _train_epoch method, which is called for each epoch from the train method.
+
 import torch
 from abc import abstractmethod
 from numpy import inf

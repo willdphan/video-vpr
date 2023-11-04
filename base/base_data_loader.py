@@ -1,3 +1,5 @@
+# BaseDataLoader handles batch generation, data shuffling, and validation data splitting.
+
 import numpy as np
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate

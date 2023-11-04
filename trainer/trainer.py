@@ -1,3 +1,5 @@
+# Trainer class extends BaseTrainer to include additional features that are specific to the training process it is designed to handle. For example, it might add support for validation data, learning rate scheduling, or special logging and metric tracking.
+
 import numpy as np
 import torch
 from torchvision.utils import make_grid
